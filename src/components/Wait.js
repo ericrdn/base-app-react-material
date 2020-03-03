@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect, useCallback } from "react";
 import { Backdrop, CircularProgress } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -30,13 +30,25 @@ export const Wait = {
   },
   Component: ({ StateMessageComponent, SetStateMessageComponent }) => {
     const classes = useStyles();
-    const { Open = false, resolveCallback } = StateMessageComponent;
-    const handleClose = callback => {
-      SetStateMessageComponent(OldState => ({ ...OldState, Open: false }));
-      resolveCallback(callback);
-    };
+    const {
+      Open = false,
+      resolveCallback,
+      errorCallback,
+      Handle = new Promise((r, e) => {})
+    } = StateMessageComponent;
+
+    useEffect(() => {
+      Handle.then(retorno => {
+        resolveCallback(retorno);
+        SetStateMessageComponent(OldState => ({ ...OldState, Open: false }));
+      }).catch(e => {
+        errorCallback(e);
+        SetStateMessageComponent(OldState => ({ ...OldState, Open: false }));
+      });
+    }, [Handle, SetStateMessageComponent, errorCallback, resolveCallback]);
+
     return (
-      <Backdrop className={classes.backdrop} open={Open} onClick={handleClose}>
+      <Backdrop className={classes.backdrop} open={Open}>
         <CircularProgress color="inherit" />
       </Backdrop>
     );
@@ -49,7 +61,8 @@ export function EventoContext(SetStateMessageComponent) {
       SetStateMessageComponent({
         Open: true,
         Handle,
-        resolveCallback: resolve
+        resolveCallback: resolve,
+        errorCallback: error
       });
     });
 }

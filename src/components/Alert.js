@@ -69,11 +69,11 @@ export const Message = {
 };
 
 export function EventoContext(SetStateMessageComponent) {
-  return ({ Title, Message, Buttons } = {}) =>
+  return ({ Title, Message, Buttons = [{ Title: "Ok" }] } = {}) =>
     new Promise((resolve, error) => {
       SetStateMessageComponent({
-        Title,
-        Message,
+        Title: String(Title),
+        Message: String(Message),
         Buttons,
         Open: true,
         resolveCallback: resolve
