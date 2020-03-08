@@ -7,15 +7,25 @@ import { useMessage } from "../components/Alert";
 export function Home() {
   const Wait = useWait();
   const Message = useMessage();
+  const [gitHubData, setGitHubData] = React.useState({});
 
   const handleButton = async () => {
     try {
-      const ret = await Wait(axios.get("https://api.github.com/users/"));
+      const ret = await Wait(
+        axios.get("https://api.github.com/user1s/ericrdn")
+      );
+      setGitHubData(ret.data);
       console.log(ret.data);
     } catch (e) {
       Message({ Title: "Erro", Message: e });
     }
   };
 
-  return <button onClick={handleButton}>Home</button>;
+  return (
+    <>
+      <button onClick={handleButton}>Home</button>
+      <br />
+      <img src={gitHubData.avatar_url} alt=""></img>
+    </>
+  );
 }
